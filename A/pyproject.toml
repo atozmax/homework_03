@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "airbnb-serving"
+version = "0.1.0"
+description = "Airbnb price prediction serving API (HW03-A)"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "python-dotenv>=1.0",
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.0",
+    "pandas>=2.0",
+    "numpy>=1.26",
+    "scikit-learn>=1.4",
+    "mlflow>=2.13",
+    "joblib>=1.4",
+    "requests>=2.32",
+    "pytest>=8.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

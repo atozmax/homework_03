@@ -1,0 +1,7 @@
+services:
+  airbnb-serving:
+    image: qbc12-airbnb-serving:optimized
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
