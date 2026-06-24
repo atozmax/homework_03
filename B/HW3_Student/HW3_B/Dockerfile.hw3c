@@ -1,0 +1,12 @@
+# Dockerfile.hw3c — For HW3_C deployment (uses the shared base image from the local registry)
+# Build: docker build -t 185.50.38.163:35000/qbc12-embedder-<username>:v1 -f Dockerfile.hw3c .
+# Push:  docker push 185.50.38.163:35000/qbc12-embedder-<username>:v1
+
+FROM 185.50.38.163:35000/qbc12-hw03-base:v1
+
+# Copy the FastAPI application code (adds /healthz/live and /healthz/ready)
+COPY app/ /app/
+
+USER app
+WORKDIR /app
+ENTRYPOINT ["/app/entrypoint.sh"]
