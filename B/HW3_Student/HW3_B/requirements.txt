@@ -19,3 +19,4 @@ psycopg[binary]==3.2.3
 qdrant-client==1.12.1
 minio==7.2.12
 requests==2.32.3
+transformers===5.12.1

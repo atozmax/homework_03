@@ -23,6 +23,16 @@ from pydantic import BaseModel, ConfigDict, Field
 #   - error: Optional[str] = None
 # HINT: use ConfigDict(extra="forbid") for all models so extra fields are rejected
 
+class HealthResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["ok", "degraded", "error"]
+    bundle_loaded: bool
+    bundle_dir: str
+    qdrant_reachable: bool
+    pg_reachable: bool
+    error: Optional[str] = None
+
 
 # TODO: define ModelInfoResponse model with fields:
 #   - bundle_version: str
@@ -36,6 +46,19 @@ from pydantic import BaseModel, ConfigDict, Field
 #   - qdrant_vector_count: Optional[int] = None
 # HINT: model_config = ConfigDict(extra="forbid")
 
+class ModelInfoResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_version: str
+    model_id: str
+    model_revision: str
+    device: str
+    max_seq_len: int
+    embedding_dim: int
+    bundle_dir: str
+    qdrant_collection: str
+    qdrant_vector_count: Optional[int] = None
+
 
 # TODO: define RootResponse model with fields:
 #   - message: str
@@ -43,6 +66,14 @@ from pydantic import BaseModel, ConfigDict, Field
 #   - health: str
 #   - version: str
 # HINT: this is returned by the GET / endpoint
+
+class RootResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    message: str
+    docs: str
+    health: str
+    version: str
 
 
 # ============================================================================
@@ -57,12 +88,27 @@ from pydantic import BaseModel, ConfigDict, Field
 #     json_schema_extra={"example": {"texts": ["I love this so much"]}}
 # )
 
+class EmbedRequest(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={"example": {"texts": ["I love this so much"]}},
+    )
+
+    texts: List[str] = Field(..., min_length=1, max_length=256)
+
 
 # TODO: define EmbedResponse model:
 #   - count: int          (number of embedded texts)
 #   - dim: int            (embedding dimension, always 384)
 #   - embeddings: List[List[float]]
 # HINT: model_config = ConfigDict(extra="forbid")
+
+class EmbedResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    count: int
+    dim: int
+    embeddings: List[List[float]]
 
 
 # ============================================================================
@@ -77,6 +123,15 @@ from pydantic import BaseModel, ConfigDict, Field
 #   - exclude_neutral: bool = Field(True)     (drop docs with only "neutral" label)
 # HINT: model_config = ConfigDict(extra="forbid")
 
+class SearchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(..., min_length=1, max_length=4096)
+    top_k: int = Field(10, ge=1, le=100)
+    lang: Optional[Literal["en"]] = None
+    primary: Optional[str] = Field(None, max_length=64)
+    exclude_neutral: bool = Field(True)
+
 
 # TODO: define SearchHit model:
 #   - id: str
@@ -88,6 +143,17 @@ from pydantic import BaseModel, ConfigDict, Field
 #   - source: str
 # HINT: model_config = ConfigDict(extra="forbid")
 
+class SearchHit(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    score: float
+    text: str
+    primary: str
+    labels: List[str]
+    lang: str
+    source: str
+
 
 # TODO: define SearchResponse model:
 #   - query: str
@@ -96,6 +162,15 @@ from pydantic import BaseModel, ConfigDict, Field
 #   - took_ms: float
 #   - hits: List[SearchHit]
 # HINT: model_config = ConfigDict(extra="forbid")
+
+class SearchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    query: str
+    count: int
+    top_k: int
+    took_ms: float
+    hits: List[SearchHit]
 
 
 # ============================================================================
@@ -106,6 +181,11 @@ from pydantic import BaseModel, ConfigDict, Field
 #   - text: str = Field(..., min_length=1, max_length=4096)  (single text)
 # HINT: model_config = ConfigDict(extra="forbid")
 
+class PredictRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: str = Field(..., min_length=1, max_length=4096)
+
 
 # TODO: define PredictResponse model:
 #   - text: str
@@ -115,3 +195,11 @@ from pydantic import BaseModel, ConfigDict, Field
 #   - elapsed_ms: float      (time in ms)
 # HINT: model_config = ConfigDict(extra="forbid")
 
+class PredictResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    text: str
+    predicted_label: str
+    confidence: float
+    matched_text: str
+    elapsed_ms: float

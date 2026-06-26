@@ -19,6 +19,14 @@ import numpy as np
 # HINT: the bundle's embed() already returns L2-normalized vectors
 # HINT: if texts is empty, return np.zeros((0, 384), dtype=np.float32)
 
+def embed_texts(predictor, texts: Sequence[str]) -> np.ndarray:
+    if not texts:
+        return np.zeros((0, 384), dtype=np.float32)
+    arr = predictor.embed(list(texts))
+    if arr.shape[1] != 384:
+        raise ValueError(f"expected embedding dim 384, got {arr.shape[1]}")
+    return arr
+
 
 # TODO: (bonus) implement cosine(a: np.ndarray, b: np.ndarray) -> np.ndarray
 # Return (a.shape[0], b.shape[0]) cosine similarity matrix.

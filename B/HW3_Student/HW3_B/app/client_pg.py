@@ -28,3 +28,50 @@ from . import config
 
 # TODO: (bonus) implement count_corpus() -> Optional[int]
 # SELECT count(*) FROM core.encoder_corpus
+
+@contextmanager
+def _connect() -> Iterator[psycopg.Connection]:
+    conn = psycopg.connect(config.DATABASE_URL, connect_timeout=5)
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
+def ping() -> bool:
+    try:
+        with _connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+        return True
+    except Exception:
+        return False
+
+
+def fetch_corpus_hits(ids: List[str]) -> List[dict]:
+    if not ids:
+        return []
+    with _connect() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(
+                """
+                SELECT id::text AS id, text, primary_label, labels, lang, source
+                FROM core.encoder_corpus
+                WHERE id = ANY(%s::uuid[])
+                """,
+                (ids,),
+            )
+            rows = cur.fetchall()
+    by_id = {row["id"]: row for row in rows}
+    return [by_id[i] for i in ids]
+
+
+def count_corpus() -> Optional[int]:
+    try:
+        with _connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT count(*) FROM core.encoder_corpus")
+                row = cur.fetchone()
+                return int(row[0]) if row else None
+    except Exception:
+        return None
