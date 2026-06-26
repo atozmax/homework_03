@@ -46,6 +46,11 @@ _DEV_BUNDLE = str(
 
 def _resolve_bundle_dir() -> Path:
     env = os.getenv("BUNDLE_DIR", "").strip()
+    print('==============')
+    print("env:", env)
+    print("Path(_DEFAULT_BUNDLE_IN_IMAGE).exists():", Path(_DEFAULT_BUNDLE_IN_IMAGE).exists())
+    print("Path(_DEV_BUNDLE).exists():", Path(_DEV_BUNDLE).exists())
+    print('==============')
     if env:
         return Path(env).resolve()
     if Path(_DEFAULT_BUNDLE_IN_IMAGE).exists():
@@ -88,6 +93,7 @@ def _sha256(path: Path) -> str:
 
 def _verify_manifest(bundle_dir: Path) -> tuple[bool, str]:
     manifest_path = bundle_dir / "MANIFEST.json"
+    print("manifest_path:", manifest_path)
     if not manifest_path.exists():
         return False, "MANIFEST.json not found"
     manifest = json.loads(manifest_path.read_text())
@@ -155,6 +161,7 @@ class ModelService:
     def load(self) -> None:
         try:
             bundle_dir = _resolve_bundle_dir()
+            print("bundle_dir:", bundle_dir)
             self.state.bundle_dir = bundle_dir
             manifest_ok, manifest_msg = _verify_manifest(bundle_dir)
             self.state.manifest_ok = manifest_ok
@@ -166,9 +173,10 @@ class ModelService:
                 raise FileNotFoundError(f"model directory not found: {model_dir}")
             if str(bundle_dir) not in sys.path:
                 sys.path.insert(0, str(bundle_dir))
-            from predict import BundlePredictor  # type: ignore  # noqa: E402
+            import predict  # type: ignore  # noqa: E402
 
-            self.predictor = BundlePredictor(bundle_dir=model_dir)
+            predict.load_bundle(str(model_dir))
+            self.predictor = predict
             meta_path = bundle_dir / "metadata.json"
             if meta_path.exists():
                 self.metadata = json.loads(meta_path.read_text())

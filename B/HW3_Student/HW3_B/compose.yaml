@@ -40,10 +40,9 @@ services:
     environment:
       BUNDLE_DIR: /app/bundle
       BUNDLE_DEVICE: cpu
-      QDRANT_URL: http://qdrant:6333
-      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
-      QDRANT_COLLECTION: qbc12_corpus
-      DATABASE_URL: postgresql://qbc12_hw03_api_ro:changeme_local_only@postgres:5432/qbc12_hw03_encoder
+      # QDRANT_* and DATABASE_* come from .env (instructor's pre-populated
+      # qbc12_corpus + core.encoder_corpus). Do not override them with the empty
+      # local qdrant/postgres services unless you reindex into local Qdrant first.
       PORT: "8000"
     ports:
       - "8000:8000"
