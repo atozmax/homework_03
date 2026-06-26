@@ -1,4 +1,24 @@
 {
   "format_version": 1,
-  "files": {}
+  "files": {
+    "__pycache__/predict.cpython-312.pyc": "b4d6d92b42602ebbfac043574caf6e05d18248769ea2c5d3016bbcab32256766",
+    "metadata.json": "120333e676eb1bac3d67d33491a9badaf6933b3c032238b6fb2802b9dcbb3a01",
+    "model/.cache/huggingface/.gitignore": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1",
+    "model/.cache/huggingface/download/config.json.metadata": "9204359b30da80d53be79c5d36047704c6b7f3e48dc2754e5142a50241813806",
+    "model/.cache/huggingface/download/model.safetensors.metadata": "319a9fa3bbd22bdc3a58ecad076cf3b93d49a3d9bd58fe804f17722c136608a1",
+    "model/.cache/huggingface/download/special_tokens_map.json.metadata": "88c2e904de00e50352dd990b11bccc31ae17313215a319b862947d7ea6d7b5b6",
+    "model/.cache/huggingface/download/tokenizer.json.metadata": "fda229f0c922bb2b76a9847b66a6a7473381ed3ecdfa13acc1478b1f991e404a",
+    "model/.cache/huggingface/download/tokenizer_config.json.metadata": "faf23de2d2903d2b76a882081d28aea3e8e6c9d38e0c487c9cfb34951e90a3ed",
+    "model/.cache/huggingface/download/vocab.txt.metadata": "77dbd76a3cf32a4252b8937b31f73d74f5d041052ddba1dad0c13099a3c6f76d",
+    "model/.commit": "9d73db3316b1ee7a5b46683908230341a0e9c5bf26d88af2f26aec590b10fb57",
+    "model/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "model/config.json": "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41",
+    "model/model.safetensors": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db",
+    "model/special_tokens_map.json": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3",
+    "model/tokenizer.json": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037",
+    "model/tokenizer_config.json": "acb92769e8195aabd29b7b2137a9e6d6e25c476a4f15aa4355c233426c61576b",
+    "model/vocab.txt": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3",
+    "predict.py": "0d5b6c4eec7ad2b313bff22ae47378793410070a1d65e0479fb7acbd60c2d41d",
+    "requirements.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
 }

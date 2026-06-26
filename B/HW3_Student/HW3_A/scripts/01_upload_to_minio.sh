@@ -33,8 +33,6 @@ echo "Bucket: ${MINIO_BUCKET}"
 # Upload the bundle (exclude git metadata, the .commit marker, etc.)
 echo "Uploading bundle/ → s3://${MINIO_BUCKET}/${MINIO_PREFIX}"
 mc cp --recursive \
-    --exclude "*.git*" \
-    --exclude "*.commit" \
     "bundle/" \
     "qbc12/${MINIO_BUCKET}/${MINIO_PREFIX}"
 

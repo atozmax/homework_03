@@ -25,8 +25,9 @@ import numpy as np
 from pathlib import Path
 from typing import List, Tuple
 
-# HINT: from transformers import AutoModel, AutoTokenizer
-# HINT: import torch, torch.nn.functional as F
+import torch
+import torch.nn.functional as F
+from transformers import AutoModel, AutoTokenizer
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -34,87 +35,89 @@ from typing import List, Tuple
 BUNDLE_DIR = os.getenv("BUNDLE_DIR", os.path.join(os.path.dirname(__file__), "model"))
 MAX_SEQ_LEN = 256
 EMBEDDING_DIM = 384
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+
+_model = None
+_tokenizer = None
+_device = None
+_bundle_dir = None
 
 # ---------------------------------------------------------------------------
-# TODO: Implement these 4 functions
+# Implementation
 # ---------------------------------------------------------------------------
 
 def load_bundle(bundle_dir: str | None = None) -> Tuple:
-    """Load model and tokenizer from the bundle directory.
+    """Load model and tokenizer from the bundle directory."""
+    global _model, _tokenizer, _device, _bundle_dir
 
-    Args:
-        bundle_dir: Path to bundle/model/. Defaults to BUNDLE_DIR env var.
+    path = bundle_dir or BUNDLE_DIR
+    torch.manual_seed(0)
 
-    Returns:
-        (model, tokenizer) tuple. model is in eval mode on the correct device.
-        tokenizer is loaded from the same directory.
+    model = AutoModel.from_pretrained(path)
+    tokenizer = AutoTokenizer.from_pretrained(path)
 
-    HINT: AutoModel.from_pretrained(bundle_dir), AutoTokenizer.from_pretrained(bundle_dir)
-    """
-    # TODO: implement
-    # HINT: set torch.manual_seed(0) for determinism
-    # HINT: model.eval(), model.to(device)
-    raise NotImplementedError("TODO: load_bundle()")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.eval()
+    model.to(device)
+
+    _model = model
+    _tokenizer = tokenizer
+    _device = device
+    _bundle_dir = path
+
+    return model, tokenizer
+
+
+def _ensure_loaded() -> None:
+    if _model is None or _tokenizer is None:
+        load_bundle()
 
 
 def embed(texts: List[str]) -> np.ndarray:
-    """Embed a list of texts into a (N, 384) float32 numpy array.
+    """Embed a list of texts into a (N, 384) float32 numpy array."""
+    if not texts:
+        return np.zeros((0, EMBEDDING_DIM), dtype=np.float32)
 
-    The 7-step pipeline:
-        1. tokenizer(texts, padding=True, truncation=True, max_length=256, return_tensors="pt")
-        2. move to device
-        3. model(**encoded) under torch.no_grad()
-        4. mean-pool: sum(last_hidden * mask) / sum(mask).clamp(min=1e-9)
-        5. L2 normalize: F.normalize(pooled, p=2, dim=1)
-        6. detach().cpu().numpy().astype(np.float32)
-        7. return
+    _ensure_loaded()
 
-    Args:
-        texts: List of strings to embed. Can be empty.
+    encoded = _tokenizer(
+        texts,
+        padding=True,
+        truncation=True,
+        max_length=MAX_SEQ_LEN,
+        return_tensors="pt",
+    )
+    encoded = {k: v.to(_device) for k, v in encoded.items()}
 
-    Returns:
-        np.ndarray of shape (len(texts), 384), dtype float32.
-        For empty input, returns shape (0, 384).
+    with torch.no_grad():
+        outputs = _model(**encoded)
+        last_hidden = outputs.last_hidden_state
+        mask = encoded["attention_mask"].unsqueeze(-1).float()
+        summed = (last_hidden * mask).sum(dim=1)
+        counts = mask.sum(dim=1).clamp(min=1e-9)
+        pooled = summed / counts
+        normalized = F.normalize(pooled, p=2, dim=1)
 
-    HINT: if not texts: return np.zeros((0, EMBEDDING_DIM), dtype=np.float32)
-    """
-    # TODO: implement the 7-step pipeline
-    # HINT: mask = encoded["attention_mask"].unsqueeze(-1).float()
-    # HINT: summed = (last_hidden * mask).sum(dim=1)
-    # HINT: counts = mask.sum(dim=1).clamp(min=1e-9)
-    # HINT: pooled = summed / counts
-    raise NotImplementedError("TODO: embed()")
+    return normalized.detach().cpu().numpy().astype(np.float32)
 
 
 def similarity(a: np.ndarray, b: np.ndarray) -> float:
-    """Compute cosine similarity between two embedding vectors.
-
-    Args:
-        a: First embedding vector (384,).
-        b: Second embedding vector (384,).
-
-    Returns:
-        float: Cosine similarity in [-1, 1].
-
-    HINT: For L2-normalized vectors, cosine = dot product
-    HINT: float((a * b).sum()) — OR use np.dot(a, b)
-    """
-    # TODO: implement
-    raise NotImplementedError("TODO: similarity()")
+    """Compute cosine similarity between two embedding vectors."""
+    return float(np.dot(a, b))
 
 
 def info() -> dict:
-    """Return metadata about the loaded bundle.
-
-    Returns:
-        dict with keys: model_name, embedding_dim, max_seq_len, device,
-        framework, deterministic, bundle_dir.
-
-    HINT: return {"model_name": "sentence-transformers/all-MiniLM-L6-v2", ...}
-    """
-    # TODO: implement
-    # HINT: check if model is loaded, if not call load_bundle() first
-    raise NotImplementedError("TODO: info()")
+    """Return metadata about the loaded bundle."""
+    _ensure_loaded()
+    return {
+        "model_name": MODEL_NAME,
+        "embedding_dim": EMBEDDING_DIM,
+        "max_seq_len": MAX_SEQ_LEN,
+        "device": str(_device).replace("torch.", ""),
+        "framework": f"torch {torch.__version__}",
+        "deterministic": True,
+        "bundle_dir": _bundle_dir,
+    }
 
 
 # ---------------------------------------------------------------------------

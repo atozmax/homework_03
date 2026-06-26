@@ -1,14 +1,9 @@
 {
-  "model_name": "TODO: fill in sentence-transformers/all-MiniLM-L6-v2",
-  "model_revision": "TODO: fill in git commit hash from HuggingFace",
+  "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+  "model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
   "embedding_dim": 384,
   "max_seq_len": 256,
-  "framework": "pytorch",
-  "framework_version": "TODO: fill in torch.__version__",
-  "transformers_version": "TODO: fill in transformers.__version__",
-  "pooling": "mean-weight-by-attention-mask",
-  "normalization": "l2",
-  "built_by": "TODO: fill in your name",
-  "build_timestamp_utc": "TODO: fill in ISO 8601 timestamp",
-  "notes": "Mean-pool then L2-normalize. See predict.py for the 7-step pipeline."
+  "framework_version": "2.10.0",
+  "transformers_version": "5.12.1",
+  "built_by": "Amir"
 }
